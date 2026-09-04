@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Registro de Leads — Equilibrio Total</title>
+<title>Registro Leads TikTok — Equilibrio Total</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +12,6 @@
     --primary:#4C91A4;
     --primary-dark:#397889;
     --primary-light:#E5F1F3;
-    --accent:#E97949;
     --success:#2C9658;
     --success-dark:#237A47;
     --danger:#DD382C;
@@ -41,10 +40,6 @@
     border-radius:0 0 28px 28px;
     box-shadow:var(--shadow);
   }
-  header img{
-    height:44px;
-    margin-bottom:10px;
-  }
   header h1{
     margin:0;
     font-size:19px;
@@ -58,7 +53,7 @@
     font-weight:500;
   }
   main{
-    max-width:520px;
+    max-width:480px;
     margin:0 auto;
     padding:18px 16px 0;
   }
@@ -70,7 +65,7 @@
     margin-bottom:16px;
   }
   .field{
-    margin-bottom:20px;
+    margin-bottom:22px;
   }
   .field:last-child{margin-bottom:0;}
   .field label{
@@ -82,6 +77,14 @@
   }
   .field label .req{
     color:var(--danger);
+  }
+  .field .sub{
+    display:block;
+    font-size:12px;
+    font-weight:500;
+    color:var(--text-muted);
+    margin-top:-6px;
+    margin-bottom:10px;
   }
   .chips{
     display:flex;
@@ -100,6 +103,8 @@
     user-select:none;
     transition:all .15s ease;
     -webkit-tap-highlight-color:transparent;
+    flex:1 1 40%;
+    text-align:center;
   }
   .chip:active{transform:scale(0.96);}
   .chip.selected{
@@ -107,15 +112,7 @@
     border-color:var(--primary);
     color:#fff;
   }
-  .chip.selected.estatus-positivo{
-    background:var(--success);
-    border-color:var(--success);
-  }
-  .chip.selected.estatus-negativo{
-    background:var(--danger);
-    border-color:var(--danger);
-  }
-  input[type=text], input[type=tel], textarea{
+  input[type=date]{
     width:100%;
     border:2px solid var(--border);
     border-radius:12px;
@@ -124,20 +121,56 @@
     font-family:inherit;
     color:var(--text);
     background:#fff;
-    transition:border-color .15s ease;
   }
-  input[type=text]:focus, input[type=tel]:focus, textarea:focus{
+  input[type=date]:focus{
     outline:none;
     border-color:var(--primary);
   }
-  textarea{
-    resize:vertical;
-    min-height:70px;
+  .stepper{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--primary-light);
+    border-radius:14px;
+    padding:10px 12px;
   }
-  .hint{
-    font-size:12px;
-    color:var(--text-muted);
-    margin-top:6px;
+  .stepper button{
+    width:48px;
+    height:48px;
+    border-radius:12px;
+    border:none;
+    background:var(--primary);
+    color:#fff;
+    font-size:24px;
+    font-weight:700;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    flex-shrink:0;
+  }
+  .stepper button:active{transform:scale(0.95);}
+  .stepper button.minus{
+    background:#fff;
+    color:var(--primary);
+    border:2px solid var(--primary);
+  }
+  .stepper input[type=number]{
+    flex:1;
+    border:none;
+    background:transparent;
+    text-align:center;
+    font-size:28px;
+    font-weight:800;
+    color:var(--primary-dark);
+    width:100%;
+    -moz-appearance:textfield;
+  }
+  .stepper input[type=number]::-webkit-outer-spin-button,
+  .stepper input[type=number]::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  .stepper input[type=number]:focus{
+    outline:none;
   }
   .btn-guardar{
     width:100%;
@@ -172,29 +205,6 @@
   .msg.show{display:block;}
   .msg.ok{background:#E4F5EA;color:var(--success-dark);}
   .msg.err{background:#FBE7E5;color:var(--danger);}
-  .resumen{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-  }
-  .resumen .stat{
-    text-align:center;
-    padding:14px 6px;
-    background:var(--primary-light);
-    border-radius:12px;
-  }
-  .resumen .stat .num{
-    font-size:22px;
-    font-weight:800;
-    color:var(--primary-dark);
-    line-height:1.1;
-  }
-  .resumen .stat .lbl{
-    font-size:11px;
-    color:var(--text-muted);
-    font-weight:600;
-    margin-top:4px;
-  }
   .resumen-title{
     font-size:13px;
     font-weight:700;
@@ -202,6 +212,51 @@
     text-transform:uppercase;
     letter-spacing:0.4px;
     margin:0 0 12px;
+  }
+  .resumen-top{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .resumen-top .stat{
+    text-align:center;
+    padding:16px 6px;
+    background:var(--primary-light);
+    border-radius:12px;
+  }
+  .resumen-top .stat .num{
+    font-size:26px;
+    font-weight:800;
+    color:var(--primary-dark);
+    line-height:1.1;
+  }
+  .resumen-top .stat .lbl{
+    font-size:11.5px;
+    color:var(--text-muted);
+    font-weight:600;
+    margin-top:4px;
+  }
+  .sede-rows{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .sede-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 12px;
+    background:var(--bg);
+    border-radius:10px;
+    font-size:14px;
+  }
+  .sede-row .nombre{
+    font-weight:600;
+  }
+  .sede-row .valor{
+    font-weight:800;
+    color:var(--primary-dark);
   }
   footer{
     text-align:center;
@@ -225,13 +280,13 @@
 <body>
 
 <header>
-  <h1>📋 Registro de Leads WhatsApp</h1>
+  <h1>📊 Registro de Leads TikTok</h1>
   <p>Contact Center · Equilibrio Total</p>
 </header>
 
 <main>
 
-  <div id="msgOk" class="msg ok">✅ Lead guardado correctamente</div>
+  <div id="msgOk" class="msg ok">✅ Registro guardado correctamente</div>
   <div id="msgErr" class="msg err">⚠️ No se pudo guardar. Revisa tu conexión e intenta de nuevo.</div>
 
   <form id="leadForm" class="card" autocomplete="off">
@@ -247,89 +302,90 @@
     </div>
 
     <div class="field">
-      <label>Nombre del contacto <span class="req">*</span></label>
-      <input type="text" id="nombre" placeholder="Ej. María López">
+      <label>Fecha</label>
+      <input type="date" id="fecha">
     </div>
 
     <div class="field">
-      <label>Teléfono <span class="req">*</span></label>
-      <input type="tel" id="telefono" inputmode="tel" placeholder="Ej. 5512345678">
-    </div>
-
-    <div class="field">
-      <label>Campaña de origen <span class="req">*</span></label>
-      <div class="chips" data-group="campana">
-        <div class="chip" data-value="Leads a Whats (wa.link)">Leads a Whats (wa.link)</div>
-        <div class="chip" data-value="4 Sedes Septiembre">4 Sedes Septiembre</div>
-        <div class="chip" data-value="Orgánico">Orgánico</div>
-        <div class="chip" data-value="Otro">Otro</div>
+      <label>Leads del día <span class="req">*</span></label>
+      <span class="sub">Los que llegaron en horario de oficina</span>
+      <div class="stepper">
+        <button type="button" class="minus" data-target="leadsDia">−</button>
+        <input type="number" id="leadsDia" value="0" min="0" inputmode="numeric">
+        <button type="button" class="plus" data-target="leadsDia">+</button>
       </div>
     </div>
 
     <div class="field">
-      <label>Estatus del contacto <span class="req">*</span></label>
-      <div class="chips" data-group="estatus">
-        <div class="chip" data-value="Nuevo">Nuevo</div>
-        <div class="chip" data-value="Contactado">Contactado</div>
-        <div class="chip estatus-positivo" data-value="Agendó cita">Agendó cita</div>
-        <div class="chip estatus-negativo" data-value="No contestó">No contestó</div>
-        <div class="chip estatus-negativo" data-value="No interesado">No interesado</div>
-        <div class="chip" data-value="Ya era paciente">Ya era paciente</div>
+      <label>Leads acumulados</label>
+      <span class="sub">Los que llegaron después de las 5 PM</span>
+      <div class="stepper">
+        <button type="button" class="minus" data-target="leadsAcumulados">−</button>
+        <input type="number" id="leadsAcumulados" value="0" min="0" inputmode="numeric">
+        <button type="button" class="plus" data-target="leadsAcumulados">+</button>
       </div>
     </div>
 
     <div class="field">
-      <label>Notas (opcional)</label>
-      <textarea id="notas" placeholder="Cualquier detalle extra..."></textarea>
-    </div>
-
-    <div class="field">
-      <button type="submit" class="btn-guardar" id="btnGuardar">Guardar lead</button>
-      <div class="hint" style="text-align:center;">La fecha y hora se guardan automáticamente</div>
+      <button type="submit" class="btn-guardar" id="btnGuardar">Guardar registro</button>
     </div>
 
   </form>
 
   <div class="card" id="resumenCard">
     <p class="resumen-title">Resumen</p>
-    <div class="resumen">
+    <div class="resumen-top">
       <div class="stat">
         <div class="num" id="statHoy">–</div>
-        <div class="lbl">Hoy</div>
+        <div class="lbl">Total hoy</div>
       </div>
       <div class="stat">
         <div class="num" id="statSemana">–</div>
-        <div class="lbl">Esta semana</div>
-      </div>
-      <div class="stat">
-        <div class="num" id="statPct">–</div>
-        <div class="lbl">% Agendó cita</div>
+        <div class="lbl">Últimos 7 días</div>
       </div>
     </div>
+    <div class="sede-rows" id="sedeRows"></div>
   </div>
 
-  <footer>Equilibrio Total · Contact Center</footer>
+  <footer>Equilibrio Total · Contact Center · TikTok Ads</footer>
 
 </main>
 
 <script>
 // ===== CONFIGURACIÓN =====
-// Pega aquí la URL del Google Apps Script Web App (termina en /exec)
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyI_qC2SovZs8XeN827CvQ5V98-zWsAHehngxmXHL4yd2e4BxZgxC6q_MEz3FqLICeT/exec";
 // ==========================
 
-const seleccion = { sede:null, campana:null, estatus:null };
+const SEDES = ['Balbuena', 'Coacalco', 'Chalco', 'Neza'];
+let sedeSeleccionada = null;
 
 document.querySelectorAll('.chips').forEach(grupo => {
-  const key = grupo.dataset.group;
   grupo.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
       grupo.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
-      seleccion[key] = chip.dataset.value;
+      sedeSeleccionada = chip.dataset.value;
     });
   });
 });
+
+document.querySelectorAll('.stepper button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = document.getElementById(btn.dataset.target);
+    let val = parseInt(input.value, 10) || 0;
+    if (btn.classList.contains('plus')) val++;
+    else val = Math.max(0, val - 1);
+    input.value = val;
+  });
+});
+
+function hoyLocalISO() {
+  const d = new Date();
+  const tzOffset = d.getTimezoneOffset() * 60000;
+  return new Date(d - tzOffset).toISOString().slice(0, 10);
+}
+
+document.getElementById('fecha').value = hoyLocalISO();
 
 const form = document.getElementById('leadForm');
 const btn = document.getElementById('btnGuardar');
@@ -345,12 +401,12 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   ocultarMensajes();
 
-  const nombre = document.getElementById('nombre').value.trim();
-  const telefono = document.getElementById('telefono').value.trim();
-  const notas = document.getElementById('notas').value.trim();
+  const fecha = document.getElementById('fecha').value;
+  const leadsDia = document.getElementById('leadsDia').value;
+  const leadsAcumulados = document.getElementById('leadsAcumulados').value;
 
-  if (!seleccion.sede || !nombre || !telefono || !seleccion.campana || !seleccion.estatus) {
-    msgErr.textContent = '⚠️ Falta llenar sede, nombre, teléfono, campaña o estatus.';
+  if (!sedeSeleccionada || !fecha) {
+    msgErr.textContent = '⚠️ Falta elegir sede o fecha.';
     msgErr.classList.add('show');
     window.scrollTo({top:0, behavior:'smooth'});
     return;
@@ -366,12 +422,10 @@ form.addEventListener('submit', async (e) => {
   btn.innerHTML = '<span class="spinner"></span>Guardando...';
 
   const datos = new URLSearchParams({
-    sede: seleccion.sede,
-    nombre: nombre,
-    telefono: telefono,
-    campana: seleccion.campana,
-    estatus: seleccion.estatus,
-    notas: notas
+    fecha: fecha,
+    sede: sedeSeleccionada,
+    leadsDia: leadsDia,
+    leadsAcumulados: leadsAcumulados
   });
 
   try {
@@ -383,9 +437,6 @@ form.addEventListener('submit', async (e) => {
 
     if (data.ok) {
       msgOk.classList.add('show');
-      form.reset();
-      document.querySelectorAll('.chip.selected').forEach(c => c.classList.remove('selected'));
-      seleccion.sede = null; seleccion.campana = null; seleccion.estatus = null;
       cargarResumen();
     } else {
       throw new Error(data.error || 'error desconocido');
@@ -395,7 +446,7 @@ form.addEventListener('submit', async (e) => {
     msgErr.classList.add('show');
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Guardar lead';
+    btn.textContent = 'Guardar registro';
     window.scrollTo({top:0, behavior:'smooth'});
   }
 });
@@ -408,7 +459,16 @@ async function cargarResumen(){
     if (data.ok) {
       document.getElementById('statHoy').textContent = data.hoy;
       document.getElementById('statSemana').textContent = data.semana;
-      document.getElementById('statPct').textContent = data.pctAgendo + '%';
+
+      const cont = document.getElementById('sedeRows');
+      cont.innerHTML = '';
+      SEDES.forEach(s => {
+        const val = (data.porSedeHoy && data.porSedeHoy[s]) || 0;
+        const row = document.createElement('div');
+        row.className = 'sede-row';
+        row.innerHTML = '<span class="nombre">' + s + '</span><span class="valor">' + val + '</span>';
+        cont.appendChild(row);
+      });
     }
   } catch (err) {
     console.error('No se pudo cargar el resumen', err);
