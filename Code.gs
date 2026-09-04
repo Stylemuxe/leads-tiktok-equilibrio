@@ -3,7 +3,6 @@
 
 const SHEET_NAME = 'Leads';
 const ZONA_HORARIA = 'America/Mexico_City';
-const SEDES_VALIDAS = ['Balbuena', 'Coacalco', 'Chalco', 'Neza'];
 
 function doGet(e) {
   const accion = e.parameter.action;
@@ -17,15 +16,14 @@ function doPost(e) {
   try {
     const p = e.parameter;
     const fecha = p.fecha;
-    const sede = p.sede;
     const leadsDia = parseInt(p.leadsDia, 10) || 0;
     const leadsAcumulados = parseInt(p.leadsAcumulados, 10) || 0;
 
-    if (!fecha || !sede || SEDES_VALIDAS.indexOf(sede) === -1) {
-      return respuestaJSON({ ok: false, error: 'Faltan campos obligatorios o sede inválida' });
+    if (!fecha) {
+      return respuestaJSON({ ok: false, error: 'Falta la fecha' });
     }
 
-    guardarRegistro(fecha, sede, leadsDia, leadsAcumulados);
+    guardarRegistro(fecha, leadsDia, leadsAcumulados);
 
     return respuestaJSON({ ok: true });
   } catch (err) {
@@ -39,7 +37,7 @@ function getSheet() {
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
   }
-  const headers = ['Fecha', 'Sede', 'Leads del día', 'Leads acumulados', 'Total', 'Actualizado'];
+  const headers = ['Fecha', 'Leads del día', 'Leads acumulados', 'Total', 'Actualizado'];
   const primeraFila = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
   const yaTieneHeaders = headers.every(function (h, i) { return primeraFila[i] === h; });
   if (!yaTieneHeaders) {
@@ -58,7 +56,7 @@ function normalizarFecha(valor) {
   return valor;
 }
 
-function guardarRegistro(fechaStr, sede, leadsDia, leadsAcumulados) {
+function guardarRegistro(fechaStr, leadsDia, leadsAcumulados) {
   const sheet = getSheet();
   const data = sheet.getDataRange().getValues();
   const total = leadsDia + leadsAcumulados;
@@ -66,9 +64,9 @@ function guardarRegistro(fechaStr, sede, leadsDia, leadsAcumulados) {
 
   for (let i = 1; i < data.length; i++) {
     const filaFechaStr = normalizarFecha(data[i][0]);
-    const filaSede = data[i][1];
-    if (filaFechaStr === fechaStr && filaSede === sede) {
-      sheet.getRange(i + 1, 3, 1, 4).setValues([[leadsDia, leadsAcumulados, total, ahora]]);
+    if (filaFechaStr === fechaStr) {
+      sheet.getRange(i + 1, 2, 1, 3).setValues([[leadsDia, leadsAcumulados, total]]);
+      sheet.getRange(i + 1, 5).setValue(ahora);
       return;
     }
   }
@@ -76,13 +74,13 @@ function guardarRegistro(fechaStr, sede, leadsDia, leadsAcumulados) {
   // El apóstrofo fuerza a Sheets a guardar como texto literal y evita
   // que reinterprete "2026-09-04" como un objeto Date al escribir vía API
   // (setNumberFormat('@') por sí solo no es suficiente para writes por API).
-  sheet.appendRow(["'" + fechaStr, sede, leadsDia, leadsAcumulados, total, ahora]);
+  sheet.appendRow(["'" + fechaStr, leadsDia, leadsAcumulados, total, ahora]);
 }
 
 function getResumen() {
   const sheet = getSheet();
   const values = sheet.getDataRange().getValues();
-  values.shift(); // quitar encabezado
+  values.shift();
 
   const ahora = new Date();
   const hoyStr = Utilities.formatDate(ahora, ZONA_HORARIA, 'yyyy-MM-dd');
@@ -93,19 +91,14 @@ function getResumen() {
 
   let hoyTotal = 0;
   let semanaTotal = 0;
-  const porSedeHoy = {};
-  SEDES_VALIDAS.forEach(function (s) { porSedeHoy[s] = 0; });
 
   values.forEach(function (row) {
     const fechaStr = normalizarFecha(row[0]);
     if (!fechaStr) return;
-    const total = Number(row[4]) || 0;
+    const total = Number(row[3]) || 0;
 
     if (fechaStr === hoyStr) {
       hoyTotal += total;
-      if (porSedeHoy.hasOwnProperty(row[1])) {
-        porSedeHoy[row[1]] += total;
-      }
     }
     if (fechaStr >= hace7Str && fechaStr <= hoyStr) {
       semanaTotal += total;
@@ -115,8 +108,7 @@ function getResumen() {
   return {
     ok: true,
     hoy: hoyTotal,
-    semana: semanaTotal,
-    porSedeHoy: porSedeHoy
+    semana: semanaTotal
   };
 }
 

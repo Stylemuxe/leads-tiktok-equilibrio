@@ -86,32 +86,6 @@
     margin-top:-6px;
     margin-bottom:10px;
   }
-  .chips{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-  }
-  .chip{
-    border:2px solid var(--border);
-    background:#fff;
-    color:var(--text);
-    padding:11px 16px;
-    border-radius:999px;
-    font-size:14px;
-    font-weight:600;
-    cursor:pointer;
-    user-select:none;
-    transition:all .15s ease;
-    -webkit-tap-highlight-color:transparent;
-    flex:1 1 40%;
-    text-align:center;
-  }
-  .chip:active{transform:scale(0.96);}
-  .chip.selected{
-    background:var(--primary);
-    border-color:var(--primary);
-    color:#fff;
-  }
   input[type=date]{
     width:100%;
     border:2px solid var(--border);
@@ -237,27 +211,6 @@
     font-weight:600;
     margin-top:4px;
   }
-  .sede-rows{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
-  .sede-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:10px 12px;
-    background:var(--bg);
-    border-radius:10px;
-    font-size:14px;
-  }
-  .sede-row .nombre{
-    font-weight:600;
-  }
-  .sede-row .valor{
-    font-weight:800;
-    color:var(--primary-dark);
-  }
   footer{
     text-align:center;
     font-size:11px;
@@ -290,16 +243,6 @@
   <div id="msgErr" class="msg err">⚠️ No se pudo guardar. Revisa tu conexión e intenta de nuevo.</div>
 
   <form id="leadForm" class="card" autocomplete="off">
-
-    <div class="field">
-      <label>Sede <span class="req">*</span></label>
-      <div class="chips" data-group="sede">
-        <div class="chip" data-value="Balbuena">Balbuena</div>
-        <div class="chip" data-value="Coacalco">Coacalco</div>
-        <div class="chip" data-value="Chalco">Chalco</div>
-        <div class="chip" data-value="Neza">Neza</div>
-      </div>
-    </div>
 
     <div class="field">
       <label>Fecha</label>
@@ -344,7 +287,6 @@
         <div class="lbl">Últimos 7 días</div>
       </div>
     </div>
-    <div class="sede-rows" id="sedeRows"></div>
   </div>
 
   <footer>Equilibrio Total · Contact Center · TikTok Ads</footer>
@@ -355,19 +297,6 @@
 // ===== CONFIGURACIÓN =====
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyI_qC2SovZs8XeN827CvQ5V98-zWsAHehngxmXHL4yd2e4BxZgxC6q_MEz3FqLICeT/exec";
 // ==========================
-
-const SEDES = ['Balbuena', 'Coacalco', 'Chalco', 'Neza'];
-let sedeSeleccionada = null;
-
-document.querySelectorAll('.chips').forEach(grupo => {
-  grupo.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      grupo.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-      sedeSeleccionada = chip.dataset.value;
-    });
-  });
-});
 
 document.querySelectorAll('.stepper button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -405,8 +334,8 @@ form.addEventListener('submit', async (e) => {
   const leadsDia = document.getElementById('leadsDia').value;
   const leadsAcumulados = document.getElementById('leadsAcumulados').value;
 
-  if (!sedeSeleccionada || !fecha) {
-    msgErr.textContent = '⚠️ Falta elegir sede o fecha.';
+  if (!fecha) {
+    msgErr.textContent = '⚠️ Falta elegir la fecha.';
     msgErr.classList.add('show');
     window.scrollTo({top:0, behavior:'smooth'});
     return;
@@ -423,7 +352,6 @@ form.addEventListener('submit', async (e) => {
 
   const datos = new URLSearchParams({
     fecha: fecha,
-    sede: sedeSeleccionada,
     leadsDia: leadsDia,
     leadsAcumulados: leadsAcumulados
   });
@@ -459,16 +387,6 @@ async function cargarResumen(){
     if (data.ok) {
       document.getElementById('statHoy').textContent = data.hoy;
       document.getElementById('statSemana').textContent = data.semana;
-
-      const cont = document.getElementById('sedeRows');
-      cont.innerHTML = '';
-      SEDES.forEach(s => {
-        const val = (data.porSedeHoy && data.porSedeHoy[s]) || 0;
-        const row = document.createElement('div');
-        row.className = 'sede-row';
-        row.innerHTML = '<span class="nombre">' + s + '</span><span class="valor">' + val + '</span>';
-        cont.appendChild(row);
-      });
     }
   } catch (err) {
     console.error('No se pudo cargar el resumen', err);
