@@ -45,8 +45,17 @@ function getSheet() {
   if (!yaTieneHeaders) {
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
     sheet.setFrozenRows(1);
+    // Columna A como texto plano para que "2026-09-04" nunca se reinterprete como Date.
+    sheet.getRange(1, 1, sheet.getMaxRows(), 1).setNumberFormat('@');
   }
   return sheet;
+}
+
+function normalizarFecha(valor) {
+  if (valor instanceof Date) {
+    return Utilities.formatDate(valor, ZONA_HORARIA, 'yyyy-MM-dd');
+  }
+  return valor;
 }
 
 function guardarRegistro(fechaStr, sede, leadsDia, leadsAcumulados) {
@@ -56,18 +65,18 @@ function guardarRegistro(fechaStr, sede, leadsDia, leadsAcumulados) {
   const ahora = new Date();
 
   for (let i = 1; i < data.length; i++) {
-    const filaFecha = data[i][0];
+    const filaFechaStr = normalizarFecha(data[i][0]);
     const filaSede = data[i][1];
-    if (!(filaFecha instanceof Date)) continue;
-    const filaFechaStr = Utilities.formatDate(filaFecha, ZONA_HORARIA, 'yyyy-MM-dd');
     if (filaFechaStr === fechaStr && filaSede === sede) {
       sheet.getRange(i + 1, 3, 1, 4).setValues([[leadsDia, leadsAcumulados, total, ahora]]);
       return;
     }
   }
 
-  const fechaDate = new Date(fechaStr + 'T00:00:00');
-  sheet.appendRow([fechaDate, sede, leadsDia, leadsAcumulados, total, ahora]);
+  // El apóstrofo fuerza a Sheets a guardar como texto literal y evita
+  // que reinterprete "2026-09-04" como un objeto Date al escribir vía API
+  // (setNumberFormat('@') por sí solo no es suficiente para writes por API).
+  sheet.appendRow(["'" + fechaStr, sede, leadsDia, leadsAcumulados, total, ahora]);
 }
 
 function getResumen() {
@@ -78,9 +87,9 @@ function getResumen() {
   const ahora = new Date();
   const hoyStr = Utilities.formatDate(ahora, ZONA_HORARIA, 'yyyy-MM-dd');
 
-  const hace7 = new Date(ahora);
-  hace7.setDate(hace7.getDate() - 6);
-  hace7.setHours(0, 0, 0, 0);
+  const hace7Date = new Date(ahora);
+  hace7Date.setDate(hace7Date.getDate() - 6);
+  const hace7Str = Utilities.formatDate(hace7Date, ZONA_HORARIA, 'yyyy-MM-dd');
 
   let hoyTotal = 0;
   let semanaTotal = 0;
@@ -88,10 +97,9 @@ function getResumen() {
   SEDES_VALIDAS.forEach(function (s) { porSedeHoy[s] = 0; });
 
   values.forEach(function (row) {
-    const fecha = row[0];
-    if (!(fecha instanceof Date)) return;
+    const fechaStr = normalizarFecha(row[0]);
+    if (!fechaStr) return;
     const total = Number(row[4]) || 0;
-    const fechaStr = Utilities.formatDate(fecha, ZONA_HORARIA, 'yyyy-MM-dd');
 
     if (fechaStr === hoyStr) {
       hoyTotal += total;
@@ -99,7 +107,7 @@ function getResumen() {
         porSedeHoy[row[1]] += total;
       }
     }
-    if (fecha >= hace7) {
+    if (fechaStr >= hace7Str && fechaStr <= hoyStr) {
       semanaTotal += total;
     }
   });
